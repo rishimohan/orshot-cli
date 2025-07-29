@@ -8,7 +8,6 @@ const packageJson = require("../package.json");
 const authCommands = require("../src/commands/auth");
 const templateCommands = require("../src/commands/templates");
 const generateCommands = require("../src/commands/generate");
-const testCommands = require("../src/commands/test");
 
 // Set up the main program
 program
@@ -38,9 +37,6 @@ program
   .description("Generate images")
   .addCommand(generateCommands.library)
   .addCommand(generateCommands.studio);
-
-// Test command (for debugging)
-program.addCommand(testCommands.test);
 
 // Add global help
 program.addHelpText(

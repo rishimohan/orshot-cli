@@ -166,7 +166,6 @@ const studio = new Command("studio")
   )
   .option("-t, --type <type>", "Response type (base64|binary|url)", "base64")
   .option("-o, --output <filename>", "Output filename")
-  .option("-w, --webhook <url>", "Webhook URL for notifications")
   .option("-i, --interactive", "Interactive mode to set data")
   .option("-j, --json", "Output response as JSON")
   .action(async (templateId, options) => {
@@ -220,7 +219,6 @@ const studio = new Command("studio")
       const result = await api.generateFromStudio(templateId, data, {
         format: options.format,
         responseType: options.type,
-        webhook: options.webhook,
       });
 
       if (options.json) {
@@ -253,10 +251,6 @@ const studio = new Command("studio")
         Object.entries(data).forEach(([key, value]) => {
           console.log(chalk.gray(`   ${key}: ${value}`));
         });
-      }
-
-      if (options.webhook) {
-        console.log(chalk.blue("🔔 Webhook configured:"), options.webhook);
       }
     } catch (error) {
       console.error(chalk.red("❌ Failed to generate image:"), error.message);

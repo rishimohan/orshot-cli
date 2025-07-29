@@ -38,12 +38,6 @@ const login = new Command("login")
       // Save the API key
       config.setApiKey(apiKey);
 
-      // Debug info
-      if (process.env.DEBUG) {
-        console.log(chalk.gray('Debug - Domain:', config.getDomain()));
-        console.log(chalk.gray('Debug - API Key:', apiKey.substring(0, 8) + '...'));
-      }
-
       console.log(chalk.blue("🔄 Verifying API key..."));
 
       // Test the API key by getting user info
@@ -75,7 +69,6 @@ const login = new Command("login")
         console.error(chalk.gray('   - Verify your account has API access'));
       }
       
-      console.error(chalk.gray('\n🐛 For debugging, run with: DEBUG=1 orshot auth login <api-key>'));
       process.exit(1);
     }
   });

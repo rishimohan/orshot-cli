@@ -46,25 +46,6 @@ class OrshotAPI {
         axiosConfig.data = data;
       }
 
-      // Debug logging if enabled
-      if (process.env.DEBUG) {
-        console.log(
-          "Request Config:",
-          JSON.stringify(
-            {
-              ...axiosConfig,
-              headers: {
-                ...axiosConfig.headers,
-                Authorization:
-                  axiosConfig.headers.Authorization?.substring(0, 20) + "...",
-              },
-            },
-            null,
-            2
-          )
-        );
-      }
-
       const response = await axios(axiosConfig);
 
       if (spinner) spinner.succeed("Request completed");
@@ -73,17 +54,9 @@ class OrshotAPI {
       if (spinner) spinner.fail("Request failed");
 
       let errorMessage = "Unknown error occurred";
-      let debugInfo = {};
 
       if (error.response) {
-        const { status, data, headers } = error.response;
-
-        debugInfo = {
-          status,
-          headers: headers,
-          data: data,
-          url: `${this.getBaseURL()}${endpoint}`,
-        };
+        const { status, data } = error.response;
 
         if (status === 401) {
           errorMessage = "Invalid API key. Please check your credentials.";
@@ -97,20 +70,9 @@ class OrshotAPI {
           errorMessage = data?.error || data?.message || `HTTP ${status} error`;
         }
       } else if (error.request) {
-        debugInfo = {
-          request: "No response received",
-          timeout: error.code === "ECONNABORTED",
-          url: `${this.getBaseURL()}${endpoint}`,
-        };
         errorMessage = "Network error. Please check your connection.";
       } else {
-        debugInfo = { setup: error.message };
         errorMessage = error.message;
-      }
-
-      // Show debug info if DEBUG env var is set
-      if (process.env.DEBUG) {
-        console.error("Debug Info:", JSON.stringify(debugInfo, null, 2));
       }
 
       throw new Error(errorMessage);
@@ -211,10 +173,6 @@ class OrshotAPI {
         type: options.responseType || "base64",
       },
     };
-
-    if (options.webhook) {
-      requestBody.webhook = options.webhook;
-    }
 
     return this.request("POST", "/v1/studio/render", requestBody, {
       showSpinner: true,
