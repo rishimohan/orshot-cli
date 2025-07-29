@@ -38,6 +38,12 @@ const login = new Command("login")
       // Save the API key
       config.setApiKey(apiKey);
 
+      // Debug info
+      if (process.env.DEBUG) {
+        console.log(chalk.gray('Debug - Domain:', config.getDomain()));
+        console.log(chalk.gray('Debug - API Key:', apiKey.substring(0, 8) + '...'));
+      }
+
       console.log(chalk.blue("🔄 Verifying API key..."));
 
       // Test the API key by getting user info
@@ -48,11 +54,28 @@ const login = new Command("login")
 
       console.log(chalk.green("✅ Successfully logged in!"));
       console.log(chalk.gray(`   User ID: ${user.user_id || "Unknown"}`));
+      console.log(chalk.gray(`   Name: ${user.name || "Not available"}`));
+      console.log(chalk.gray(`   Email: ${user.email || "Not available"}`));
       console.log(chalk.gray(`   Domain: ${config.getDomain()}`));
     } catch (error) {
       // Clear invalid credentials
       config.clear();
       console.error(chalk.red("❌ Login failed:"), error.message);
+      
+      // Provide debugging suggestions
+      if (error.message.includes('Network error')) {
+        console.error(chalk.yellow('💡 Troubleshooting tips:'));
+        console.error(chalk.gray('   - Check your internet connection'));
+        console.error(chalk.gray('   - Verify the domain is correct:', config.getDomain()));
+        console.error(chalk.gray('   - Try again in a few moments'));
+      } else if (error.message.includes('Invalid API key')) {
+        console.error(chalk.yellow('💡 Troubleshooting tips:'));
+        console.error(chalk.gray('   - Double-check your API key from https://orshot.com/dashboard/developers'));
+        console.error(chalk.gray('   - Make sure there are no extra spaces or characters'));
+        console.error(chalk.gray('   - Verify your account has API access'));
+      }
+      
+      console.error(chalk.gray('\n🐛 For debugging, run with: DEBUG=1 orshot auth login <api-key>'));
       process.exit(1);
     }
   });
@@ -78,6 +101,8 @@ const whoami = new Command("whoami")
 
       console.log(chalk.green("✅ Current user:"));
       console.log(chalk.gray(`   User ID: ${user.user_id || "Unknown"}`));
+      console.log(chalk.gray(`   Name: ${user.name || "Not available"}`));
+      console.log(chalk.gray(`   Email: ${user.email || "Not available"}`));
       console.log(chalk.gray(`   Domain: ${config.getDomain()}`));
       console.log(
         chalk.gray(`   API Key: ${config.getApiKey().substring(0, 8)}...`)

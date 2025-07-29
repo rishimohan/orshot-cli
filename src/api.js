@@ -5,7 +5,11 @@ const ora = require("ora");
 
 class OrshotAPI {
   constructor() {
-    this.baseURL = config.getDomain();
+    // Don't store baseURL at construction time, get it dynamically
+  }
+
+  getBaseURL() {
+    return config.getDomain();
   }
 
   getHeaders() {
@@ -27,13 +31,41 @@ class OrshotAPI {
       : null;
 
     try {
-      const response = await axios({
+      const baseURL = this.getBaseURL(); // Get baseURL dynamically
+
+      // Create clean axios config without spreading options that might conflict
+      const axiosConfig = {
         method,
-        url: `${this.baseURL}${endpoint}`,
+        url: `${baseURL}${endpoint}`,
         headers: this.getHeaders(),
-        data,
-        ...options,
-      });
+        timeout: 10000,
+      };
+
+      // Only add data if it exists
+      if (data) {
+        axiosConfig.data = data;
+      }
+
+      // Debug logging if enabled
+      if (process.env.DEBUG) {
+        console.log(
+          "Request Config:",
+          JSON.stringify(
+            {
+              ...axiosConfig,
+              headers: {
+                ...axiosConfig.headers,
+                Authorization:
+                  axiosConfig.headers.Authorization?.substring(0, 20) + "...",
+              },
+            },
+            null,
+            2
+          )
+        );
+      }
+
+      const response = await axios(axiosConfig);
 
       if (spinner) spinner.succeed("Request completed");
       return response.data;
@@ -41,9 +73,17 @@ class OrshotAPI {
       if (spinner) spinner.fail("Request failed");
 
       let errorMessage = "Unknown error occurred";
+      let debugInfo = {};
 
       if (error.response) {
-        const { status, data } = error.response;
+        const { status, data, headers } = error.response;
+
+        debugInfo = {
+          status,
+          headers: headers,
+          data: data,
+          url: `${this.getBaseURL()}${endpoint}`,
+        };
 
         if (status === 401) {
           errorMessage = "Invalid API key. Please check your credentials.";
@@ -57,9 +97,20 @@ class OrshotAPI {
           errorMessage = data?.error || data?.message || `HTTP ${status} error`;
         }
       } else if (error.request) {
+        debugInfo = {
+          request: "No response received",
+          timeout: error.code === "ECONNABORTED",
+          url: `${this.getBaseURL()}${endpoint}`,
+        };
         errorMessage = "Network error. Please check your connection.";
       } else {
+        debugInfo = { setup: error.message };
         errorMessage = error.message;
+      }
+
+      // Show debug info if DEBUG env var is set
+      if (process.env.DEBUG) {
+        console.error("Debug Info:", JSON.stringify(debugInfo, null, 2));
       }
 
       throw new Error(errorMessage);
@@ -68,7 +119,40 @@ class OrshotAPI {
 
   // User methods
   async getCurrentUser() {
-    return this.request("GET", "/v1/me/user_id", null, { showSpinner: true });
+    // Make GET request to /v1/me/user_id with Bearer token
+    const response = await this.request("GET", "/v1/me/user_id", null, {
+      showSpinner: true,
+    });
+
+    // Handle different response structures from the API
+    if (response && response.data) {
+      // Response has nested data object
+      return {
+        user_id: response.data.user_id || response.data.id || "Unknown",
+        email: response.data.email || "",
+        name: response.data.name || response.data.full_name || "",
+        full_name: response.data.full_name || response.data.name || "", // Alias for compatibility
+      };
+    } else if (
+      response &&
+      (response.user_id || response.id || response.email || response.name)
+    ) {
+      // Response has user data directly
+      return {
+        user_id: response.user_id || response.id || "Unknown",
+        email: response.email || "",
+        name: response.name || response.full_name || "",
+        full_name: response.full_name || response.name || "", // Alias for compatibility
+      };
+    }
+
+    // Default return for any other structure
+    return {
+      user_id: "Unknown",
+      email: "",
+      name: "",
+      full_name: "",
+    };
   }
 
   // Template methods
@@ -105,7 +189,7 @@ class OrshotAPI {
     const requestBody = {
       templateId,
       modifications,
-      source: "cli",
+      source: "orshot-cli",
       response: {
         format: options.format || "png",
         type: options.responseType || "base64",
@@ -120,8 +204,8 @@ class OrshotAPI {
   async generateFromStudio(templateId, data = {}, options = {}) {
     const requestBody = {
       templateId,
-      data,
-      source: "cli",
+      modifications: data, // Studio API expects 'modifications', not 'data'
+      source: "orshot-cli",
       response: {
         format: options.format || "png",
         type: options.responseType || "base64",

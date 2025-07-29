@@ -126,7 +126,7 @@ const library = new Command("library")
           options.output ||
           `orshot-${templateId}-${Date.now()}.${options.format}`;
         await saveImage(
-          result.data || result,
+          result.data.content || result,
           outputFilename,
           options.format,
           options.type
@@ -236,7 +236,7 @@ const studio = new Command("studio")
           options.output ||
           `orshot-studio-${templateId}-${Date.now()}.${options.format}`;
         await saveImage(
-          result.data || result,
+          result.data.content || result,
           outputFilename,
           options.format,
           options.type
