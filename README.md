@@ -1,6 +1,6 @@
 # Orshot CLI
 
-A command-line interface for [Orshot](https://orshot.com) - AI powered visual content generation platform. Generate images from your templates directly from your terminal
+A command-line interface for [Orshot](https://orshot.com) - AI powered visual content generation platform. Generate images from [your templates](https://orshot.com/templates) directly from your terminal
 
 ## Installation
 
@@ -165,7 +165,7 @@ The CLI stores your configuration in your system's config directory:
 
 ## API Key
 
-Get your API key from your [Orshot dashboard](https://orshot.com/dashboard/developers).
+Get your API key from Orshot Workspace > Settings > API Key [here](https://orshot.com/signup).
 
 ## Output Formats
 
@@ -234,7 +234,7 @@ The CLI provides detailed error messages and suggestions:
 
 - **Documentation:** [https://orshot.com/docs](https://orshot.com/docs)
 - **API Reference:** [https://orshot.com/docs/api-reference](https://orshot.com/docs/api-reference)
-- **Support:** [support@orshot.com](mailto:support@orshot.com)
+- **Support:** [hi@orshot.com](mailto:hi@orshot.com)
 
 ## License
 
