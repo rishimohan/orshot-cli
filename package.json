@@ -1,10 +1,11 @@
 {
   "name": "orshot-cli",
   "version": "1.0.0",
-  "description": "CLI tool for Orshot - Automated Image Generation",
+  "description": "CLI tool for Orshot - Automated Visual Content Generation",
   "keywords": [
     "orshot",
     "image generation",
+    "pdf generation",
     "cli",
     "automated image generation"
   ],
