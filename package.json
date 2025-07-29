@@ -1,0 +1,59 @@
+{
+  "name": "orshot-cli",
+  "version": "1.0.0",
+  "description": "CLI tool for Orshot - Automated Image Generation",
+  "keywords": [
+    "orshot",
+    "image generation",
+    "cli",
+    "automated image generation"
+  ],
+  "author": {
+    "name": "Rishi Mohan",
+    "email": "iamrishi.ms@gmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://orshot.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rishimohan/orshot-cli"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "bin": {
+    "orshot": "./bin/orshot.js"
+  },
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node bin/orshot.js",
+    "build": "echo 'No build step needed'",
+    "test": "node examples/usage.js",
+    "lint": "eslint src/ bin/ examples/",
+    "lintfix": "eslint src/ bin/ examples/ --fix",
+    "example": "node examples/usage.js",
+    "prepublishOnly": "npm run lint"
+  },
+  "dependencies": {
+    "commander": "^11.1.0",
+    "axios": "^1.6.0",
+    "chalk": "^4.1.2",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1",
+    "conf": "^10.2.0",
+    "fs-extra": "^11.1.1",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.0.0"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "examples/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ]
+}
