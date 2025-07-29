@@ -132,12 +132,11 @@ Generate an image from a studio template.
 
 **Options:**
 
-- `-d, --data <key=value>` - Template data (can be used multiple times)
+- `-m, --modification <key=value>` - Template modifications (can be used multiple times)
 - `-f, --format <format>` - Output format: png, jpg, jpeg, webp, pdf (default: png)
 - `-t, --type <type>` - Response type: base64, binary, url (default: base64)
 - `-o, --output <filename>` - Output filename
-- `-w, --webhook <url>` - Webhook URL for notifications
-- `-i, --interactive` - Interactive mode to set data
+- `-i, --interactive` - Interactive mode to set modifications
 - `-j, --json` - Output response as JSON
 
 **Examples:**
@@ -146,14 +145,14 @@ Generate an image from a studio template.
 # Basic generation
 orshot generate studio def456
 
-# With data
-orshot generate studio def456 -d name="John Doe" -d title="CEO"
+# With modifications
+orshot generate studio def456 -m name="John Doe" -m title="CEO"
 
 # Interactive mode
 orshot generate studio def456 --interactive
 
-# With webhook
-orshot generate studio def456 -w https://your-site.com/webhook
+# Custom output
+orshot generate studio def456 -o my-studio-image.png -f png
 ```
 
 ## Configuration

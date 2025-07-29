@@ -155,8 +155,8 @@ const studio = new Command("studio")
   .description("Generate image from studio template")
   .argument("<template-id>", "Studio template ID")
   .option(
-    "-d, --data <key=value...>",
-    "Template data (can be used multiple times)",
+    "-m, --modification <key=value...>",
+    "Template modifications (can be used multiple times)",
     []
   )
   .option(
@@ -166,49 +166,49 @@ const studio = new Command("studio")
   )
   .option("-t, --type <type>", "Response type (base64|binary|url)", "base64")
   .option("-o, --output <filename>", "Output filename")
-  .option("-i, --interactive", "Interactive mode to set data")
+  .option("-i, --interactive", "Interactive mode to set modifications")
   .option("-j, --json", "Output response as JSON")
   .action(async (templateId, options) => {
     try {
       config.requireAuth();
 
-      let data = parseModifications(options.data);
+      let modifications = parseModifications(options.modification);
 
       // Interactive mode
       if (options.interactive) {
-        console.log(chalk.blue("🔄 Fetching available data fields..."));
+        console.log(chalk.blue("🔄 Fetching available modifications..."));
 
         try {
           const availableFields =
             await api.getStudioTemplateModifications(templateId);
 
           if (availableFields && availableFields.length > 0) {
-            console.log(chalk.green("📝 Available data fields:"));
+            console.log(chalk.green("📝 Available modifications:"));
 
             const answers = await inquirer.prompt(
               availableFields.map((field) => ({
                 type: "input",
                 name: field.id,
                 message: `${field.description || field.id}:`,
-                default: data[field.id] || "",
+                default: modifications[field.id] || "",
               }))
             );
 
             // Only add non-empty values
             Object.keys(answers).forEach((key) => {
               if (answers[key].trim()) {
-                data[key] = answers[key].trim();
+                modifications[key] = answers[key].trim();
               }
             });
           } else {
             console.log(
-              chalk.yellow("⚠️  No data fields available for this template")
+              chalk.yellow("⚠️  No modifications available for this template")
             );
           }
         } catch (error) {
           console.log(
             chalk.yellow(
-              "⚠️  Could not fetch data fields, continuing with provided values"
+              "⚠️  Could not fetch modifications, continuing with provided values"
             )
           );
         }
@@ -216,7 +216,7 @@ const studio = new Command("studio")
 
       console.log(chalk.blue("🎨 Generating image from studio template..."));
 
-      const result = await api.generateFromStudio(templateId, data, {
+      const result = await api.generateFromStudio(templateId, modifications, {
         format: options.format,
         responseType: options.type,
       });
@@ -246,9 +246,9 @@ const studio = new Command("studio")
         );
       }
 
-      if (Object.keys(data).length > 0) {
-        console.log(chalk.gray("📝 Used data:"));
-        Object.entries(data).forEach(([key, value]) => {
+      if (Object.keys(modifications).length > 0) {
+        console.log(chalk.gray("📝 Used modifications:"));
+        Object.entries(modifications).forEach(([key, value]) => {
           console.log(chalk.gray(`   ${key}: ${value}`));
         });
       }
