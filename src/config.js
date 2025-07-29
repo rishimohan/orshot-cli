@@ -1,24 +1,24 @@
-const Conf = require("conf");
-const chalk = require("chalk");
+const Conf = require('conf');
+const chalk = require('chalk');
 
 class Config {
   constructor() {
     this.config = new Conf({
-      projectName: "orshot-cli",
+      projectName: 'orshot-cli',
       schema: {
         apiKey: {
-          type: "string",
+          type: 'string',
         },
         domain: {
-          type: "string",
-          default: "https://api.orshot.com",
+          type: 'string',
+          default: 'https://api.orshot.com',
         },
         user: {
-          type: "object",
+          type: 'object',
           properties: {
-            id: { type: "string" },
-            email: { type: "string" },
-            name: { type: "string" },
+            id: { type: 'string' },
+            email: { type: 'string' },
+            name: { type: 'string' },
           },
         },
       },
@@ -26,27 +26,27 @@ class Config {
   }
 
   getApiKey() {
-    return this.config.get("apiKey");
+    return this.config.get('apiKey');
   }
 
   setApiKey(apiKey) {
-    this.config.set("apiKey", apiKey);
+    this.config.set('apiKey', apiKey);
   }
 
   getDomain() {
-    return this.config.get("domain", "https://api.orshot.com");
+    return this.config.get('domain', 'https://api.orshot.com');
   }
 
   setDomain(domain) {
-    this.config.set("domain", domain);
+    this.config.set('domain', domain);
   }
 
   getUser() {
-    return this.config.get("user");
+    return this.config.get('user');
   }
 
   setUser(user) {
-    this.config.set("user", user);
+    this.config.set('user', user);
   }
 
   clear() {
@@ -59,8 +59,8 @@ class Config {
 
   requireAuth() {
     if (!this.isAuthenticated()) {
-      console.error(chalk.red("❌ Not authenticated. Please run:"));
-      console.error(chalk.yellow("   orshot auth login <your-api-key>"));
+      console.error(chalk.red('❌ Not authenticated. Please run:'));
+      console.error(chalk.yellow('   orshot auth login <your-api-key>'));
       process.exit(1);
     }
   }

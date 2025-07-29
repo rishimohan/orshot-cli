@@ -1,28 +1,27 @@
-const { Command } = require("commander");
-const chalk = require("chalk");
-const inquirer = require("inquirer");
-const fs = require("fs-extra");
-const path = require("path");
-const config = require("../config");
-const api = require("../api");
+const { Command } = require('commander');
+const chalk = require('chalk');
+const inquirer = require('inquirer');
+const fs = require('fs-extra');
+const config = require('../config');
+const api = require('../api');
 
 // Utility function to save image
 async function saveImage(imageData, filename, format, responseType) {
   try {
-    if (responseType === "base64") {
+    if (responseType === 'base64') {
       // Remove data URL prefix if present
-      const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, "");
-      await fs.writeFile(filename, base64Data, "base64");
-    } else if (responseType === "binary") {
+      const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
+      await fs.writeFile(filename, base64Data, 'base64');
+    } else if (responseType === 'binary') {
       await fs.writeFile(filename, imageData);
-    } else if (responseType === "url") {
-      console.log(chalk.blue("🔗 Image URL:"), imageData.url || imageData);
+    } else if (responseType === 'url') {
+      console.log(chalk.blue('🔗 Image URL:'), imageData.url || imageData);
       return;
     }
 
     console.log(chalk.green(`💾 Image saved as: ${filename}`));
   } catch (error) {
-    console.error(chalk.red("❌ Failed to save image:"), error.message);
+    console.error(chalk.red('❌ Failed to save image:'), error.message);
   }
 }
 
@@ -32,7 +31,7 @@ function parseModifications(modificationsArray) {
 
   if (modificationsArray && modificationsArray.length > 0) {
     modificationsArray.forEach((mod) => {
-      const [key, value] = mod.split("=", 2);
+      const [key, value] = mod.split('=', 2);
       if (key && value !== undefined) {
         modifications[key] = value;
       }
@@ -43,46 +42,46 @@ function parseModifications(modificationsArray) {
 }
 
 // Library generate command
-const library = new Command("library")
-  .description("Generate image from library template")
-  .argument("<template-id>", "Library template ID")
+const library = new Command('library')
+  .description('Generate image from library template')
+  .argument('<template-id>', 'Library template ID')
   .option(
-    "-m, --modification <key=value...>",
-    "Template modifications (can be used multiple times)",
+    '-m, --modification <key=value...>',
+    'Template modifications (can be used multiple times)',
     []
   )
   .option(
-    "-f, --format <format>",
-    "Output format (png|jpg|jpeg|webp|pdf)",
-    "png"
+    '-f, --format <format>',
+    'Output format (png|jpg|jpeg|webp|pdf)',
+    'png'
   )
-  .option("-t, --type <type>", "Response type (base64|binary|url)", "base64")
-  .option("-o, --output <filename>", "Output filename")
-  .option("-i, --interactive", "Interactive mode to set modifications")
-  .option("-j, --json", "Output response as JSON")
+  .option('-t, --type <type>', 'Response type (base64|binary|url)', 'base64')
+  .option('-o, --output <filename>', 'Output filename')
+  .option('-i, --interactive', 'Interactive mode to set modifications')
+  .option('-j, --json', 'Output response as JSON')
   .action(async (templateId, options) => {
     try {
       config.requireAuth();
 
-      let modifications = parseModifications(options.modification);
+      const modifications = parseModifications(options.modification);
 
       // Interactive mode
       if (options.interactive) {
-        console.log(chalk.blue("🔄 Fetching available modifications..."));
+        console.log(chalk.blue('🔄 Fetching available modifications...'));
 
         try {
           const availableMods =
             await api.getLibraryTemplateModifications(templateId);
 
           if (availableMods && availableMods.length > 0) {
-            console.log(chalk.green("📝 Available modifications:"));
+            console.log(chalk.green('📝 Available modifications:'));
 
             const answers = await inquirer.prompt(
               availableMods.map((mod) => ({
-                type: "input",
+                type: 'input',
                 name: mod.key,
                 message: `${mod.description || mod.key}:`,
-                default: modifications[mod.key] || "",
+                default: modifications[mod.key] || '',
               }))
             );
 
@@ -94,19 +93,19 @@ const library = new Command("library")
             });
           } else {
             console.log(
-              chalk.yellow("⚠️  No modifications available for this template")
+              chalk.yellow('⚠️  No modifications available for this template')
             );
           }
         } catch (error) {
           console.log(
             chalk.yellow(
-              "⚠️  Could not fetch modifications, continuing with provided values"
+              '⚠️  Could not fetch modifications, continuing with provided values'
             )
           );
         }
       }
 
-      console.log(chalk.blue("🎨 Generating image..."));
+      console.log(chalk.blue('🎨 Generating image...'));
 
       const result = await api.generateFromLibrary(templateId, modifications, {
         format: options.format,
@@ -118,10 +117,10 @@ const library = new Command("library")
         return;
       }
 
-      console.log(chalk.green("✅ Image generated successfully!"));
+      console.log(chalk.green('✅ Image generated successfully!'));
 
       // Save image if not URL type
-      if (options.type !== "url") {
+      if (options.type !== 'url') {
         const outputFilename =
           options.output ||
           `orshot-${templateId}-${Date.now()}.${options.format}`;
@@ -133,64 +132,64 @@ const library = new Command("library")
         );
       } else {
         console.log(
-          chalk.blue("🔗 Image URL:"),
+          chalk.blue('🔗 Image URL:'),
           result.url || result.data || result
         );
       }
 
       if (Object.keys(modifications).length > 0) {
-        console.log(chalk.gray("📝 Used modifications:"));
+        console.log(chalk.gray('📝 Used modifications:'));
         Object.entries(modifications).forEach(([key, value]) => {
           console.log(chalk.gray(`   ${key}: ${value}`));
         });
       }
     } catch (error) {
-      console.error(chalk.red("❌ Failed to generate image:"), error.message);
+      console.error(chalk.red('❌ Failed to generate image:'), error.message);
       process.exit(1);
     }
   });
 
 // Studio generate command
-const studio = new Command("studio")
-  .description("Generate image from studio template")
-  .argument("<template-id>", "Studio template ID")
+const studio = new Command('studio')
+  .description('Generate image from studio template')
+  .argument('<template-id>', 'Studio template ID')
   .option(
-    "-m, --modification <key=value...>",
-    "Template modifications (can be used multiple times)",
+    '-m, --modification <key=value...>',
+    'Template modifications (can be used multiple times)',
     []
   )
   .option(
-    "-f, --format <format>",
-    "Output format (png|jpg|jpeg|webp|pdf)",
-    "png"
+    '-f, --format <format>',
+    'Output format (png|jpg|jpeg|webp|pdf)',
+    'png'
   )
-  .option("-t, --type <type>", "Response type (base64|binary|url)", "base64")
-  .option("-o, --output <filename>", "Output filename")
-  .option("-i, --interactive", "Interactive mode to set modifications")
-  .option("-j, --json", "Output response as JSON")
+  .option('-t, --type <type>', 'Response type (base64|binary|url)', 'base64')
+  .option('-o, --output <filename>', 'Output filename')
+  .option('-i, --interactive', 'Interactive mode to set modifications')
+  .option('-j, --json', 'Output response as JSON')
   .action(async (templateId, options) => {
     try {
       config.requireAuth();
 
-      let modifications = parseModifications(options.modification);
+      const modifications = parseModifications(options.modification);
 
       // Interactive mode
       if (options.interactive) {
-        console.log(chalk.blue("🔄 Fetching available modifications..."));
+        console.log(chalk.blue('🔄 Fetching available modifications...'));
 
         try {
           const availableFields =
             await api.getStudioTemplateModifications(templateId);
 
           if (availableFields && availableFields.length > 0) {
-            console.log(chalk.green("📝 Available modifications:"));
+            console.log(chalk.green('📝 Available modifications:'));
 
             const answers = await inquirer.prompt(
               availableFields.map((field) => ({
-                type: "input",
+                type: 'input',
                 name: field.id,
                 message: `${field.description || field.id}:`,
-                default: modifications[field.id] || "",
+                default: modifications[field.id] || '',
               }))
             );
 
@@ -202,19 +201,19 @@ const studio = new Command("studio")
             });
           } else {
             console.log(
-              chalk.yellow("⚠️  No modifications available for this template")
+              chalk.yellow('⚠️  No modifications available for this template')
             );
           }
         } catch (error) {
           console.log(
             chalk.yellow(
-              "⚠️  Could not fetch modifications, continuing with provided values"
+              '⚠️  Could not fetch modifications, continuing with provided values'
             )
           );
         }
       }
 
-      console.log(chalk.blue("🎨 Generating image from studio template..."));
+      console.log(chalk.blue('🎨 Generating image from studio template...'));
 
       const result = await api.generateFromStudio(templateId, modifications, {
         format: options.format,
@@ -226,10 +225,10 @@ const studio = new Command("studio")
         return;
       }
 
-      console.log(chalk.green("✅ Image generated successfully!"));
+      console.log(chalk.green('✅ Image generated successfully!'));
 
       // Save image if not URL type
-      if (options.type !== "url") {
+      if (options.type !== 'url') {
         const outputFilename =
           options.output ||
           `orshot-studio-${templateId}-${Date.now()}.${options.format}`;
@@ -241,19 +240,19 @@ const studio = new Command("studio")
         );
       } else {
         console.log(
-          chalk.blue("🔗 Image URL:"),
+          chalk.blue('🔗 Image URL:'),
           result.url || result.data || result
         );
       }
 
       if (Object.keys(modifications).length > 0) {
-        console.log(chalk.gray("📝 Used modifications:"));
+        console.log(chalk.gray('📝 Used modifications:'));
         Object.entries(modifications).forEach(([key, value]) => {
           console.log(chalk.gray(`   ${key}: ${value}`));
         });
       }
     } catch (error) {
-      console.error(chalk.red("❌ Failed to generate image:"), error.message);
+      console.error(chalk.red('❌ Failed to generate image:'), error.message);
       process.exit(1);
     }
   });
